@@ -1,36 +1,8 @@
-# Marketing Campaign Performance Analysis (SQL Server / T-SQL)
-
-## 📌 Project Overview
-Designed a relational database containing transaction data (`orders`) and budget metrics (`spend`) to analyze digital marketing campaign performance across 4 active channels (GoogleAds, Instagram, Email, Facebook).
-
----
-
-## 🛠️ Relational Database Schema & Setup
-```sql
--- 1. Orders Table Definition
-CREATE TABLE orders (
-    order_id INT,
-    channel VARCHAR(50),
-    campaign VARCHAR(50),
-    order_date DATE,
-    revenue DECIMAL (10,2)
-);
-
--- 2. Spend Table Definition
-CREATE TABLE spend (
-    channel VARCHAR(50),
-    spend_month VARCHAR(7),
-    amount_spent DECIMAL(10,2)
-);
-```
-
----
-
-## 📊 The 5 Core Analytical Queries
+## 📊 The 7 Core Analytical Queries
 
 ### 1. Highest Revenue Generation (GROUP BY / ORDER BY)
 * **Goal:** Rank total revenue generated per marketing channel.
-```sql
+
 SELECT channel, SUM(revenue) AS total_revenue 
 FROM orders 
 GROUP BY channel 
@@ -40,7 +12,7 @@ ORDER BY total_revenue DESC;
 
 ### 2. Marketing Efficiency / ROAS (Inner JOIN)
 * **Goal:** Combine table metrics to find Return on Ad Spend (Revenue / Spend).
-```sql
+
 SELECT r.channel, ROUND(r.total_revenue / s.total_spent, 2) AS roas
 FROM
   (SELECT channel, SUM(revenue) AS total_revenue FROM orders GROUP BY channel) r
@@ -53,7 +25,7 @@ ORDER BY roas DESC;
 
 ### 3. Historical Trends (Date Formatting)
 * **Goal:** Group and track company revenue growth month-over-month.
-```sql
+
 SELECT 
     FORMAT(order_date, 'yyyy-MM') AS revenue_month, 
     SUM(revenue) AS monthly_revenue
@@ -65,7 +37,7 @@ ORDER BY revenue_month ASC;
 
 ### 4. High-Value Isolation (Subquery)
 * **Goal:** Extract specific orders that performed higher than the calculated company average.
-```sql
+
 SELECT order_id, channel, campaign, revenue 
 FROM orders 
 WHERE revenue > (SELECT AVG(revenue) FROM orders)
@@ -75,7 +47,7 @@ ORDER BY revenue DESC;
 
 ### 5. Volume Bottlenecks (HAVING Clause)
 * **Goal:** Isolate failing channels generating critically low volume (fewer than 3 orders).
-```sql
+
 SELECT channel, COUNT(*) AS total_orders 
 FROM orders 
 GROUP BY channel 
@@ -83,8 +55,31 @@ HAVING COUNT(*) < 3;
 ```
 * **Insight:** Returned 0 rows; all active marketing channels safely met our baseline target order volume.
 
----
+### 6. Performance Tiering (CASE WHEN)
+* **Goal:** Classify each marketing channel into High, Medium, or Low tiers based on total Return on Ad Spend (ROAS).
 
-## 📈 Strategic Business Recommendations
-* **Budget Optimization:** Shift 15% of underperforming Facebook budget directly into Instagram to maximize macro-efficiency.
-* **Scale Engine:** Maintain stable funding for GoogleAds to serve as the high-volume traffic baseline.
+SELECT r.channel, ROUND(r.total_revenue / s.total_spent, 2) AS roas,
+CASE
+    WHEN r.total_revenue / s.total_spent >= 3 THEN 'High'
+    WHEN r.total_revenue / s.total_spent >= 1.5 THEN 'Medium'
+    ELSE 'Low'
+END AS performance_tier
+FROM
+(SELECT channel, SUM(revenue) AS total_revenue FROM orders GROUP BY channel) r
+JOIN
+(SELECT channel, SUM(amount_spent) AS total_spent FROM spend GROUP BY channel) s 
+ON r.channel = s.channel;
+```
+* **Insight:** Email (6.57x) and Instagram (3.70x) are classified as our elite "High" performance tiers. While GoogleAds brings in the highest raw volume, its efficiency sits in the "Medium" tier (2.91x) alongside Facebook (1.50x).
+
+### 7. Revenue Consistency (Statistics)
+* **Goal:** Measure how consistent revenue is within each channel using standard deviation.
+
+SELECT channel,
+    AVG(revenue) AS avg_revenue,
+    STDEV(revenue) AS revenue_stddev
+FROM orders
+GROUP BY channel;
+```
+* **Insight:** GoogleAds yields the highest average order size ($2,133.33) with relatively controlled variance. Conversely, Facebook shows high volatility (StdDev of $304.14 relative to a $350.00 average), indicating highly unpredictable transaction values.
+

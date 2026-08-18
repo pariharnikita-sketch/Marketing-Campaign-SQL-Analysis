@@ -41,13 +41,12 @@ ORDER BY total_revenue DESC;
 ### 2. Marketing Efficiency / ROAS (Inner JOIN)
 * **Goal:** Combine table metrics to find Return on Ad Spend (Revenue / Spend).
 ```sql
-SELECT 
-    o.channel, 
-    SUM(o.revenue * 1.0) / SUM(s.amount_spent) AS roas
-FROM orders o
-JOIN [spend] s 
-    ON o.channel = s.channel
-GROUP BY o.channel
+SELECT r.channel, ROUND(r.total_revenue / s.total_spent, 2) AS roas
+FROM
+  (SELECT channel, SUM(revenue) AS total_revenue FROM orders GROUP BY channel) r
+JOIN
+  (SELECT channel, SUM(amount_spent) AS total_spent FROM spend GROUP BY channel) s
+  ON r.channel = s.channel
 ORDER BY roas DESC;
 ```
 * **Insight:** Instagram was our most efficient channel with a **3.70x ROAS**, outperforming GoogleAds (2.91x) on budget efficiency.

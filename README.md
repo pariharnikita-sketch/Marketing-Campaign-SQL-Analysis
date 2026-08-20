@@ -83,3 +83,20 @@ GROUP BY channel;
 ```
 * **Insight:** GoogleAds yields the highest average order size ($2,133.33) with relatively controlled variance. Conversely, Facebook shows high volatility (StdDev of $304.14 relative to a $350.00 average), indicating highly unpredictable transaction values.
 
+
+
+## Part 2: Power BI Dashboard
+
+Extended the SQL analysis into an interactive Power BI dashboard using the same dataset (orders + spend).
+
+📄 **[View the full dashboard (PDF)](./Marketing%20campaign%20performance%20dashboard.pdf)**
+
+**Visuals included:**
+- Bar chart — revenue by channel
+- Donut chart — average order value by channel
+- Line chart — monthly revenue trend
+- Table — campaign-level revenue vs. spend
+- KPI cards — total revenue, total spend, average order value
+- Slicer — filter by channel
+
+**Custom DAX measures:**

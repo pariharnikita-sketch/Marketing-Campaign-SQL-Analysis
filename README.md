@@ -84,3 +84,23 @@ GROUP BY channel;
 
 
 **Custom DAX measures:**
+
+
+
+## Part 2: Power BI Dashboard
+
+Extended the SQL analysis into an interactive Power BI dashboard using the same dataset (orders + spend).
+
+📄 **[View the full dashboard (PDF)](./Marketing%20campaign%20performance%20dashboard.pdf)**
+
+**Visuals included:**
+- Bar chart — revenue by channel
+- Donut chart — average order value by channel
+- Line chart — monthly revenue trend
+- Table — campaign-level revenue vs. spend
+- KPI cards — total revenue, total spend, average order value
+- Slicer — filter by channel
+
+**Custom DAX measures:**
+Total ROAS = SUM(orders[revenue]) / SUM(spend[amount_spent])
+Avg Order Value = AVERAGE(orders[revenue])
